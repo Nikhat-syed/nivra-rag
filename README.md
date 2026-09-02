@@ -9,8 +9,9 @@
 
 Nivra bridges the digital literacy gap for Indian women micro-entrepreneurs by converting complex, jargon-heavy government scheme PDFs (loans, subsidies, scholarships, incubation grants) into accessible plain-language summaries and interactive tools.
 
-- **🎨 Modern React (Vite) SaaS Frontend**: Soft lavender aesthetic, glassmorphism cards, micro-animations, high contrast readability, and responsive mobile layout.
+- **🎨 Modern React (Vite) SaaS Frontend**: Soft lavender aesthetic, glassmorphism cards, day/night theme toggle, high contrast readability, and responsive mobile layout.
 - **⚡ FastAPI Python Backend**: Fast REST API exposing Hybrid RRF search, grounded Q&A, eligibility evaluation, and document checklists.
+- **🗄️ Supabase Database Integration**: PostgreSQL persistent storage for user bookmarked schemes and Q&A interaction logs.
 - **🔍 Hybrid Reciprocal Rank Fusion (RRF)**: Combines dense vector similarity (384-dim Qdrant) with sparse keyword search (BM25Okapi) for maximum precision (+54.5% Context Precision improvement over vector-only search).
 - **🌐 Multilingual Plain Language**: Grounded LLM generation with automatic translation into **Telugu (తెలుగు)** and **Hindi (हिन्दी)**.
 - **📋 Form-Driven Eligibility Checker**: Match scoring system evaluating user profile inputs (age, business stage, category, state) against scheme criteria.
@@ -23,22 +24,22 @@ Nivra bridges the digital literacy gap for Indian women micro-entrepreneurs by c
 ```
                                ┌───────────────────────────┐
                                │ React + Vite Frontend UI  │
-                               │  (http://localhost:5180)  │
+                               │   (Netlify / Port 5180)   │
                                └─────────────┬─────────────┘
                                              │ HTTP REST API (JSON)
                                              ▼
                                ┌───────────────────────────┐
                                │  FastAPI Python Backend   │
-                               │  (http://localhost:8080)  │
+                               │   (Render / Port 8080)    │
                                └─────────────┬─────────────┘
                                              │
       ┌──────────────────────────────────────┼──────────────────────────────────────┐
       │                                      │                                      │
       ▼                                      ▼                                      ▼
 ┌───────────┐                          ┌───────────┐                          ┌───────────┐
-│ Ingestion │                          │ Retrieval │                          │Generation │
-│  Docling  │                          │ Qdrant +  │                          │ Grounded  │
-│ PyPDF Fall│                          │   BM25    │                          │LLM + Trans│
+│ Ingestion │                          │ Retrieval │                          │ Database  │
+│  Docling  │                          │ Qdrant +  │                          │ Supabase  │
+│ PyPDF Fall│                          │   BM25    │                          │PostgreSQL │
 └───────────┘                          └───────────┘                          └───────────┘
 ```
 
@@ -66,16 +67,17 @@ Evaluated using RAGAS across **20 ground-truth test QA pairs**:
 ### 2. Environment Setup
 Clone the repository and install backend Python dependencies:
 ```bash
+git clone https://github.com/Nikhat-syed/nivra-rag.git
+cd nivra-rag
 py -3 -m pip install -r requirements.txt
 ```
 
-Set up your `.env` file (optional for online Groq LLM generation):
+Set up your `.env` file (for Supabase & Groq LLM):
 ```bash
 cp .env.example .env
 ```
 
 ### 3. Data Processing & Index Building
-Extract text from raw PDFs, create section chunks, and build Qdrant & BM25 search indices:
 ```bash
 # 1. Generate sample scheme PDFs (if starting fresh)
 py -3 -m data.generate_sample_pdfs
@@ -95,7 +97,7 @@ py -3 -m src.retrieval.bm25_index
 
 ### 4. Running the Web Application
 
-#### Option A: Local Dev Execution
+#### Option A: Local Execution
 ```bash
 # Start Backend
 py -3 -m uvicorn backend.main:app --port 8080
@@ -106,13 +108,18 @@ npx vite --port 5180
 ```
 *Frontend available at: **`http://localhost:5180`***
 
-#### Option B: Docker Production Deployment
+#### Option B: Netlify + Render Cloud Deployment
+1. **Frontend (Netlify)**: Connect repository to Netlify using [`netlify.toml`](file:///c:/Users/Dell/OneDrive/Desktop/rag%20system/netlify.toml).
+   - Set site name to `nivra` ➔ **`https://nivra.netlify.app`**
+2. **Backend (Render / Koyeb)**: Connect repository to Render using [`render.yaml`](file:///c:/Users/Dell/OneDrive/Desktop/rag%20system/render.yaml) or Koyeb using [`koyeb.yaml`](file:///c:/Users/Dell/OneDrive/Desktop/rag%20system/koyeb.yaml).
+
+#### Option C: Docker Container Deployment
 ```bash
 docker-compose up -d --build
 ```
 *Production Nginx Frontend available at: **`http://localhost`*** (Port 80)
 
-*For detailed Vercel, Render, and Railway deployment instructions, see [DEPLOYMENT.md](file:///c:/Users/Dell/OneDrive/Desktop/rag%20system/DEPLOYMENT.md).*
+*For complete step-by-step instructions, see [DEPLOYMENT.md](file:///c:/Users/Dell/OneDrive/Desktop/rag%20system/DEPLOYMENT.md).*
 
 ---
 
@@ -121,31 +128,36 @@ docker-compose up -d --build
 ```
 .
 ├── backend/
-│   └── main.py              # FastAPI REST endpoints (/api/search, /api/ask, /api/eligibility, etc.)
+│   ├── main.py              # FastAPI REST endpoints (/api/search, /api/ask, /api/supabase/*, etc.)
+│   └── Dockerfile           # Backend container build file
 ├── frontend/
 │   ├── index.html           # React app HTML template
 │   ├── vite.config.js       # Vite build & API proxy configuration
+│   ├── Dockerfile           # Frontend Nginx container build file
+│   ├── nginx.conf           # Nginx reverse proxy & SPA router
 │   └── src/
-│       ├── index.css        # Soft lavender CSS design system
+│       ├── index.css        # Soft lavender CSS design system (Light/Dark themes)
 │       ├── App.jsx          # Root React app component
 │       └── components/
 │           ├── Sidebar.jsx             # Left navigation menu
-│           ├── Header.jsx              # Global header with language selector
+│           ├── Header.jsx              # Global header with Day/Night toggle & language selector
 │           ├── DashboardHome.jsx       # Search bar & recommended scheme cards
 │           ├── AskQuestion.jsx         # Multilingual grounded Q&A
 │           ├── EligibilityChecker.jsx  # Form profile matcher
 │           ├── DocumentChecklistModal.jsx # Required document checklist
-│           ├── SavedSchemes.jsx        # Bookmarked schemes
+│           ├── SavedSchemes.jsx        # Bookmarked schemes synced via Supabase
 │           └── MetricsView.jsx         # RAG evaluation metrics dashboard
-├── data/
-│   ├── raw_pdfs/            # Source government scheme PDFs
-│   └── processed/          # Cleaned text & chunks JSON
 ├── src/
+│   ├── db/                  # Supabase PostgreSQL database manager
 │   ├── ingestion/           # Docling PDF extraction & section chunking
 │   ├── retrieval/           # Dense Qdrant + Sparse BM25 RRF engine
 │   ├── generation/          # Grounded LLM generator & deep-translator
 │   ├── eligibility/         # Profile form eligibility matcher
 │   └── evaluation/          # RAGAS test dataset & evaluation harness
+├── docker-compose.yml       # Full stack container orchestration
+├── netlify.toml             # Netlify deployment configuration
+├── render.yaml              # Render cloud infrastructure configuration
+├── DEPLOYMENT.md            # Complete deployment guide
 ├── requirements.txt
 └── README.md
 ```
