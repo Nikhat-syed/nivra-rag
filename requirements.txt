@@ -1,0 +1,13 @@
+docling
+pypdf
+langchain-text-splitters
+sentence-transformers
+qdrant-client
+rank-bm25
+ragas
+streamlit
+groq
+python-dotenv
+deep-translator
+pandas
+reportlab

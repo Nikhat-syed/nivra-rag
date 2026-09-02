@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "query": "What is the loan amount range under Stand-Up India scheme?",
+    "ground_truth": "The loan amount under Stand-Up India scheme ranges from Rs. 10 Lakhs to Rs. 1 Crore per bank branch.",
+    "category": "Loan"
+  },
+  {
+    "id": 2,
+    "query": "Who is eligible for Stand-Up India scheme loans?",
+    "ground_truth": "SC/ST and/or Woman entrepreneurs above 18 years setting up greenfield manufacturing, trading, or service enterprises.",
+    "category": "Loan"
+  },
+  {
+    "id": 3,
+    "query": "What are the three categories of Mudra loans under PMMY?",
+    "ground_truth": "Mudra loans are divided into Shishu (up to Rs. 50,000), Kishore (Rs. 50,000 to Rs. 5 Lakhs), and Tarun (Rs. 5 Lakhs to Rs. 10 Lakhs).",
+    "category": "Loan"
+  },
+  {
+    "id": 4,
+    "query": "Is collateral required for Pradhan Mantri Mudra Yojana (PMMY) loans?",
+    "ground_truth": "No collateral security or third-party guarantee is required for MUDRA loans up to Rs. 10 Lakhs.",
+    "category": "Loan"
+  },
+  {
+    "id": 5,
+    "query": "What is the rural margin money subsidy rate for special category women under PMEGP?",
+    "ground_truth": "Special category applicants including women receive 35% margin money subsidy for rural area projects.",
+    "category": "Subsidy / Loan"
+  },
+  {
+    "id": 6,
+    "query": "What is the maximum project cost allowed for manufacturing units under PMEGP?",
+    "ground_truth": "The maximum project cost eligible for subsidy under PMEGP is Rs. 50 Lakhs for manufacturing units.",
+    "category": "Subsidy / Loan"
+  },
+  {
+    "id": 7,
+    "query": "What percentage of grant assistance does TREAD scheme provide?",
+    "ground_truth": "TREAD scheme provides up to 30% government grant of total project cost evaluated by lending institutions.",
+    "category": "Support Service"
+  },
+  {
+    "id": 8,
+    "query": "What is the age limit and loan amount for Udyogini Scheme?",
+    "ground_truth": "Women between 18 and 55 years of age can receive subsidized loans up to Rs. 3,00,000.",
+    "category": "Loan / Subsidy"
+  },
+  {
+    "id": 9,
+    "query": "What amount of prototype grant does WE Hub Telangana offer female founders?",
+    "ground_truth": "WE Hub offers prototype seed grants up to Rs. 5 Lakhs for early-stage validation to female founders in Telangana.",
+    "category": "Support Service"
+  },
+  {
+    "id": 10,
+    "query": "What is the annual financial support under Pragati Scholarship Scheme for Girl Students?",
+    "ground_truth": "Pragati Scholarship provides Rs. 50,000 per annum for up to 4 years for Degree or 3 years for Diploma courses.",
+    "category": "Scholarship"
+  },
+  {
+    "id": 11,
+    "query": "What is the family annual income ceiling for AICTE Pragati Scholarship?",
+    "ground_truth": "The annual family income must not exceed Rs. 8 Lakhs per annum to be eligible for Pragati Scholarship.",
+    "category": "Scholarship"
+  },
+  {
+    "id": 12,
+    "query": "What training programs are provided under Mahila Shakti Kendra (MSK)?",
+    "ground_truth": "Mahila Shakti Kendra provides digital literacy, financial literacy, stitching, food processing, and handicraft production training.",
+    "category": "Skill Training"
+  },
+  {
+    "id": 13,
+    "query": "What documents are required to prove identity for Stand-Up India application?",
+    "ground_truth": "Identity proof includes Voter ID, PAN Card, Aadhaar Card, or Passport.",
+    "category": "Documents"
+  },
+  {
+    "id": 14,
+    "query": "Can an existing business take a new PMEGP subsidy?",
+    "ground_truth": "No, existing units or enterprises that have already availed government subsidies are not eligible under PMEGP.",
+    "category": "Eligibility Edge Case"
+  },
+  {
+    "id": 15,
+    "query": "What is the borrower margin money requirement under Stand-Up India?",
+    "ground_truth": "The borrower needs to bring in 15% margin money, which can be combined with state subsidy schemes.",
+    "category": "Loan"
+  },
+  {
+    "id": 16,
+    "query": "How many girl children per family can claim Pragati Scholarship?",
+    "ground_truth": "A maximum of 2 girl children per family are eligible for Pragati Scholarship.",
+    "category": "Scholarship"
+  },
+  {
+    "id": 17,
+    "query": "Who implements the PMEGP scheme at national level?",
+    "ground_truth": "Khadi and Village Industries Commission (KVIC) serves as the single nodal agency at the national level.",
+    "category": "Support Service"
+  },
+  {
+    "id": 18,
+    "query": "What is the minimum educational qualification for PMEGP manufacturing projects over 10 Lakhs?",
+    "ground_truth": "The applicant must have passed at least standard VIII standard.",
+    "category": "Eligibility Edge Case"
+  },
+  {
+    "id": 19,
+    "query": "Are non-individual entities eligible for Stand-Up India loans?",
+    "ground_truth": "Yes, provided at least 51% of shareholding and controlling stake is held by an SC/ST or Woman entrepreneur.",
+    "category": "Eligibility Edge Case"
+  },
+  {
+    "id": 20,
+    "query": "Where can micro-entrepreneurs apply for Mudra loans?",
+    "ground_truth": "Applications can be submitted via Mudra portal (mudra.org.in), UdyamiMitra portal, or any Commercial Bank branch.",
+    "category": "Loan"
+  }
+]
