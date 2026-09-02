@@ -1,0 +1,16 @@
+# Koyeb Cloud Service Manifest for Nivra
+name: nivra-rag
+services:
+  - name: nivra-backend
+    git:
+      repository: github.com/Nikhat-syed/nivra-rag
+      branch: main
+    build:
+      dockerfile: backend/Dockerfile
+    ports:
+      - port: 8080
+        path: /
+    health_check:
+      http:
+        path: /health
+        port: 8080

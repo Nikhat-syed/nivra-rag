@@ -1,0 +1,17 @@
+# Netlify Production Build & SPA Configuration for Nivra
+
+[build]
+  command = "cd frontend && npm install && npm run build"
+  publish = "frontend/dist"
+
+# Proxy /api/ requests to Python cloud backend
+[[redirects]]
+  from = "/api/*"
+  to = "https://nivra-backend.onrender.com/api/:splat"
+  status = 200
+
+# SPA Fallback Routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

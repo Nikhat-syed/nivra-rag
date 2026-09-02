@@ -1,84 +1,60 @@
 # 🚀 Nivra Production Deployment Guide
 
-This guide provides step-by-step instructions for deploying **Nivra** in production environments.
+This guide details all top production deployment options for **Nivra** across cloud platforms.
 
 ---
 
-## 🐋 Option 1: Full Docker & Docker Compose Deployment (Recommended)
+## 🌟 Option 1: Netlify (Best & Easiest for React Frontend)
 
-### Prerequisites
-- Docker Engine & Docker Compose installed.
+Netlify provides zero-config, high-speed CDN hosting for the React frontend with automatic API routing.
+
+### Steps:
+1. Log in to [Netlify.com](https://www.netlify.com/).
+2. Click **Add new site** → **Import an existing project** → Select **GitHub**.
+3. Pick your repository: `Nikhat-syed/nivra-rag`.
+4. Netlify automatically detects `netlify.toml` and configures:
+   - **Build command**: `cd frontend && npm install && npm run build`
+   - **Publish directory**: `frontend/dist`
+5. Click **Deploy Site**!
+
+---
+
+## ⚡ Option 2: Koyeb (Best Free Serverless Docker Cloud for FastAPI Backend)
+
+Koyeb automatically builds your Docker container directly from GitHub with built-in health checks.
+
+### Steps:
+1. Log in to [Koyeb.com](https://www.koyeb.com/).
+2. Click **Create App** → Select **GitHub**.
+3. Pick `Nikhat-syed/nivra-rag`.
+4. Select **Dockerfile**: Set path to `backend/Dockerfile` (Port `8080`).
+5. Set Environment Variables (`GROQ_API_KEY`, `SUPABASE_URL`, `SUPABASE_KEY`).
+6. Click **Deploy**!
+
+---
+
+## 🎈 Option 3: Streamlit Community Cloud (1-Click Standalone Python Deployment)
+
+Deploy the Python Streamlit version of Nivra in 1 click for free:
+
+### Steps:
+1. Log in to [share.streamlit.io](https://share.streamlit.io/).
+2. Click **New app**.
+3. Enter details:
+   - **Repository**: `Nikhat-syed/nivra-rag`
+   - **Branch**: `main`
+   - **Main file path**: `app/main.py`
+4. Click **Deploy**!
+
+---
+
+## 🐋 Option 4: Full Local / VPS Docker Compose
 
 ### Execution Steps
-1. **Clone the repository & enter root directory**:
-   ```bash
-   cd "rag system"
-   ```
-
-2. **Configure Environment Variables**:
-   Create a `.env` file from template:
-   ```bash
-   cp .env.example .env
-   ```
-   Add your `GROQ_API_KEY`, `SUPABASE_URL`, and `SUPABASE_KEY` (optional).
-
-3. **Build and Start Container Cluster**:
-   ```bash
-   docker-compose up -d --build
-   ```
-
-4. **Verify Container Services**:
-   - **React Nginx Web App**: `http://localhost` (Port 80)
-   - **FastAPI Backend Server**: `http://localhost:8080`
-   - **Qdrant Vector Database**: `http://localhost:6333`
-   - **Healthcheck Probe**: `http://localhost:8080/health`
-
-5. **Stop Container Cluster**:
-   ```bash
-   docker-compose down
-   ```
-
----
-
-## ☁️ Option 2: Zero-Cost Hybrid Cloud (Vercel + Render)
-
-### A. Deploy Frontend on Vercel (Global Edge Network)
-1. Install Vercel CLI or connect your GitHub repository to [Vercel](https://vercel.com).
-2. Run command:
-   ```bash
-   vercel
-   ```
-3. Vercel automatically detects `vercel.json` and builds `frontend/dist`.
-
-### B. Deploy Backend on Render (FastAPI Cloud API)
-1. Create a free account on [Render](https://render.com).
-2. Click **New Web Service** and connect your GitHub repository.
-3. Render automatically detects `render.yaml`:
-   - **Environment**: Python 3.11
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
-   - **Healthcheck**: `/health`
-4. Set Environment Variables (`GROQ_API_KEY`, `SUPABASE_URL`, `SUPABASE_KEY`).
-
----
-
-## 🚂 Option 3: Railway / Fly.io One-Click Container Deployment
-
-### Deploy via Railway CLI
 ```bash
-# Install Railway CLI
-npm i -g @railway/cli
-
-# Login and deploy
-railway login
-railway up
+git clone https://github.com/Nikhat-syed/nivra-rag.git
+cd nivra-rag
+docker-compose up -d --build
 ```
-
----
-
-## 🔍 Post-Deployment Verification Checklist
-
-- [x] Test `GET /health` returns `{"status":"healthy"}`.
-- [x] Test scheme search and hybrid retrieval on production frontend.
-- [x] Verify Supabase database bookmark synchronization across browser sessions.
-- [x] Test plain-language rewrite and Telugu / Hindi multilingual translation.
+- **React Nginx Web App**: `http://localhost` (Port 80)
+- **FastAPI Backend Server**: `http://localhost:8080`
