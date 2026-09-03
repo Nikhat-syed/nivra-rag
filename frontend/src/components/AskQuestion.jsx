@@ -3,14 +3,14 @@ import { Send, Sparkles, BookOpen, FileCheck } from 'lucide-react';
 
 export default function AskQuestion({ language, plainLanguage, retrievalMode }) {
   const [question, setQuestion] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleAsk = async (e) => {
     e.preventDefault();
     if (!question.trim()) return;
 
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch('/api/ask', {
         method: 'POST',
@@ -22,10 +22,14 @@ export default function AskQuestion({ language, plainLanguage, retrievalMode }) 
           mode: retrievalMode
         })
       });
+      if (!res.ok) {
+        throw new Error(`Server returned status ${res.status}`);
+      }
       const data = await res.json();
       setResult(data);
     } catch (err) {
       console.error("Ask query failed:", err);
+      setError("Unable to reach answer synthesis engine. Please try again in a moment.");
     } finally {
       setLoading(false);
     }
@@ -64,6 +68,13 @@ export default function AskQuestion({ language, plainLanguage, retrievalMode }) 
           </div>
         </div>
       </form>
+
+      {/* Error Feedback Card */}
+      {error && (
+        <div style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#991B1B', borderRadius: '16px', padding: '16px 20px', marginBottom: '24px', fontSize: '0.92rem' }}>
+          ⚠️ {error}
+        </div>
+      )}
 
       {/* Answer Output */}
       {result && (

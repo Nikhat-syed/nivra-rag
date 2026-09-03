@@ -161,24 +161,16 @@ class SchemeAnswerGenerator:
     def translate_text(self, text: str, target_lang: str) -> str:
         """
         Translates text into Telugu ('te') or Hindi ('hi') using deep-translator.
-        Falls back to English text if offline.
+        Falls back to English text if offline or if translation fails.
         """
-        if target_lang.lower() in ["en", "english"]:
+        if not text or target_lang.lower() in ["en", "english"]:
             return text
 
         try:
             from deep_translator import GoogleTranslator
             lang_code = "te" if "telugu" in target_lang.lower() or target_lang == "te" else "hi"
             translator = GoogleTranslator(source="auto", target=lang_code)
-
-            # Split into lines to preserve markdown formatting
-            translated_lines = []
-            for line in text.splitlines():
-                if line.strip():
-                    translated_lines.append(translator.translate(line))
-                else:
-                    translated_lines.append("")
-            return "\n".join(translated_lines)
+            return translator.translate(text)
         except Exception as e:
             logger.warning(f"Translation to {target_lang} failed: {e}. Returning original plain language text.")
             return text
