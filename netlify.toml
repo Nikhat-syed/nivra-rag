@@ -4,10 +4,10 @@
   command = "cd frontend && npm install && npm run build"
   publish = "frontend/dist"
 
-# Proxy /api/ requests to Python cloud backend
+# Proxy /api/ requests to live HTTPS backend tunnel
 [[redirects]]
   from = "/api/*"
-  to = "https://nivra-backend.onrender.com/api/:splat"
+  to = "https://7a31be66a1f0c4.lhr.life/api/:splat"
   status = 200
 
 # SPA Fallback Routing
