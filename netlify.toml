@@ -4,10 +4,10 @@
   command = "cd frontend && npm install && npm run build"
   publish = "frontend/dist"
 
-# Proxy /api/ requests to live HTTPS backend tunnel
+# Proxy /api/ requests to live HTTPS backend URL
 [[redirects]]
   from = "/api/*"
-  to = "https://7a31be66a1f0c4.lhr.life/api/:splat"
+  to = "https://shiny-cameras-sip.loca.lt/api/:splat"
   status = 200
 
 # SPA Fallback Routing
