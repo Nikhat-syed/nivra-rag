@@ -7,7 +7,7 @@
 # Proxy /api/ requests to live HTTPS backend URL
 [[redirects]]
   from = "/api/*"
-  to = "https://shiny-cameras-sip.loca.lt/api/:splat"
+  to = "https://nivra-backend-production.up.railway.app/api/:splat"
   status = 200
 
 # SPA Fallback Routing
