@@ -95,25 +95,33 @@ def health_check():
 @app.post("/api/search")
 def search_schemes(req: SearchRequest):
     """Hybrid RRF search endpoint for schemes."""
-    metadata_filter = {}
-    if req.category:
-        metadata_filter["category"] = req.category
-    if req.target_group:
-        metadata_filter["target_group"] = req.target_group
-    if req.state_or_central:
-        metadata_filter["state_or_central"] = req.state_or_central
+    try:
+        metadata_filter = {}
+        if req.category:
+            metadata_filter["category"] = req.category
+        if req.target_group:
+            metadata_filter["target_group"] = req.target_group
+        if req.state_or_central:
+            metadata_filter["state_or_central"] = req.state_or_central
 
-    if req.mode == "semantic_only":
-        results = retriever.semantic_search(req.query, top_k=req.top_k, metadata_filter=metadata_filter)
-    else:
-        results = retriever.hybrid_search(req.query, top_k=req.top_k, metadata_filter=metadata_filter)
+        if req.mode == "semantic_only":
+            results = retriever.semantic_search(req.query, top_k=req.top_k, metadata_filter=metadata_filter)
+        else:
+            results = retriever.hybrid_search(req.query, top_k=req.top_k, metadata_filter=metadata_filter)
 
-    return {
-        "query": req.query,
-        "mode": req.mode,
-        "count": len(results),
-        "results": results
-    }
+        return {
+            "query": req.query,
+            "mode": req.mode,
+            "count": len(results),
+            "results": results
+        }
+    except Exception as e:
+        logger.error(f"Error in search_schemes endpoint: {e}", exc_info=True)
+        try:
+            bm25_res = retriever.bm25_search(req.query, top_k=req.top_k)
+            return {"query": req.query, "mode": "bm25_fallback", "count": len(bm25_res), "results": bm25_res}
+        except Exception:
+            return {"query": req.query, "mode": "empty_fallback", "count": 0, "results": []}
 
 @app.post("/api/ask")
 def ask_question(req: AskRequest):
@@ -122,10 +130,14 @@ def ask_question(req: AskRequest):
         raise HTTPException(status_code=400, detail="Query string cannot be empty.")
 
     try:
-        if req.mode == "semantic_only":
-            chunks = retriever.semantic_search(req.query, top_k=5)
-        else:
-            chunks = retriever.hybrid_search(req.query, top_k=5)
+        try:
+            if req.mode == "semantic_only":
+                chunks = retriever.semantic_search(req.query, top_k=5)
+            else:
+                chunks = retriever.hybrid_search(req.query, top_k=5)
+        except Exception as ret_err:
+            logger.warning(f"Retrieval failed ({ret_err}). Using fallback search.")
+            chunks = []
 
         answers = generator.generate_answers(req.query, chunks)
         
@@ -143,7 +155,7 @@ def ask_question(req: AskRequest):
                 "source_file": c.get("source_file", "Official Guidelines")
             }
             for c in chunks
-        ]
+        ] if chunks else []
 
         # Log interaction to Supabase database (non-blocking)
         try:
@@ -167,12 +179,13 @@ def ask_question(req: AskRequest):
         }
     except Exception as e:
         logger.error(f"Error in ask_question endpoint: {e}", exc_info=True)
+        fallback_ans = generator._generate_fallback_answers(req.query, [])
         return {
             "query": req.query,
             "language": req.language,
-            "official_answer": f"Answer synthesis complete. Below are the details for '{req.query}'.",
-            "plain_answer": f"• Query Processed: '{req.query}'\n• Note: System processed your query.",
-            "translated_plain_answer": f"• Query Processed: '{req.query}'\n• Note: System processed your query.",
+            "official_answer": fallback_ans["official_answer"],
+            "plain_answer": fallback_ans["plain_answer"],
+            "translated_plain_answer": fallback_ans["plain_answer"],
             "citations": [],
             "retrieved_chunks": []
         }

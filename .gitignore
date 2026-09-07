@@ -11,8 +11,9 @@ __pycache__/
 
 # Data & Database Storage
 data/qdrant_db/
-data/processed/*.pkl
+!data/processed/bm25_index.pkl
 !data/processed/chunks_with_metadata.json
+
 
 
 # Node & Frontend Build
