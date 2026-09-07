@@ -3,6 +3,8 @@ import { Send, Sparkles, BookOpen, FileCheck } from 'lucide-react';
 
 export default function AskQuestion({ language, plainLanguage, retrievalMode }) {
   const [question, setQuestion] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
   const handleAsk = async (e) => {

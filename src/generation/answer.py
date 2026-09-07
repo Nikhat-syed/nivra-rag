@@ -75,50 +75,64 @@ class SchemeAnswerGenerator:
         context_str = self.format_context_prompt(chunks)
 
         system_prompt = (
-            "You are Nivra, an official Indian Government Scheme Assistant for women entrepreneurs.\n"
-            "CRITICAL RULES:\n"
-            "1. Answer the user question STRICTLY using ONLY the official context provided below.\n"
-            "2. Do NOT guess, hallucinate, or bring in outside knowledge.\n"
-            "3. If the context does not contain enough information, state explicitly: 'I do not have enough official information in the retrieved scheme documents to answer this question.'\n"
-            "4. Provide exact citations using format: [Source: Scheme Name - Section Title].\n"
+            "You are Nivra, an AI assistant empowering women entrepreneurs.\n"
+            "CRITICAL INSTRUCTIONS:\n"
+            "1. Answer EVERY single user question directly, accurately, and comprehensively.\n"
+            "2. When retrieved scheme context is relevant to the question, strictly ground the scheme details in the context and include citations: [Source: Scheme Name - Section Title].\n"
+            "3. If the question is a general query, provide a complete helpful answer first, then highlight relevant government schemes or support resources for women entrepreneurs.\n"
         )
 
         user_prompt = (
             f"USER QUESTION: {query}\n\n"
             f"RETRIEVED SCHEME CONTEXT:\n{context_str}\n\n"
             "Generate your answer in two sections:\n"
-            "OFFICIAL_ANSWER:\n<Official grounded wording with citations>\n\n"
-            "PLAIN_LANGUAGE_ANSWER:\n<Simplified 3-bullet point plain English summary for someone with low digital literacy>\n"
+            "OFFICIAL_ANSWER:\n<Detailed comprehensive answer with scheme citations if applicable>\n\n"
+            "PLAIN_LANGUAGE_ANSWER:\n<Simplified 3-bullet point summary>\n"
         )
 
         if self.client:
-            try:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt}
-                    ],
-                    temperature=0.2,
-                    max_tokens=900
-                )
-                raw_text = response.choices[0].message.content
-                
-                # Parse raw response
-                if "PLAIN_LANGUAGE_ANSWER:" in raw_text:
-                    parts = raw_text.split("PLAIN_LANGUAGE_ANSWER:")
-                    official = parts[0].replace("OFFICIAL_ANSWER:", "").strip()
-                    plain = parts[1].strip()
-                else:
-                    official = raw_text.strip()
-                    plain = self._generate_fallback_plain(query, chunks)
+            candidate_models = [
+                self.model,
+                "llama-3.1-70b-versatile",
+                "llama-3.3-70b-versatile",
+                "mixtral-8x7b-32768",
+                "gemma2-9b-it",
+                "llama-3.1-8b-instant"
+            ]
+            # Deduplicate while preserving order
+            seen_models = set()
+            models_to_try = [m for m in candidate_models if m and not (m in seen_models or seen_models.add(m))]
 
-                return {
-                    "official_answer": official,
-                    "plain_answer": plain
-                }
-            except Exception as e:
-                logger.warning(f"Groq API call failed: {e}. Switching to grounded synthesizer fallback.")
+            for model_name in models_to_try:
+                try:
+                    response = self.client.chat.completions.create(
+                        model=model_name,
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt}
+                        ],
+                        temperature=0.2,
+                        max_tokens=900
+                    )
+                    raw_text = response.choices[0].message.content
+                    
+                    # Parse raw response
+                    if "PLAIN_LANGUAGE_ANSWER:" in raw_text:
+                        parts = raw_text.split("PLAIN_LANGUAGE_ANSWER:")
+                        official = parts[0].replace("OFFICIAL_ANSWER:", "").strip()
+                        plain = parts[1].strip()
+                    else:
+                        official = raw_text.strip()
+                        plain = self._generate_fallback_plain(query, chunks)
+
+                    return {
+                        "official_answer": official,
+                        "plain_answer": plain
+                    }
+                except Exception as e:
+                    logger.warning(f"Groq API call with model '{model_name}' failed: {e}.")
+
+            logger.warning("All Groq model attempts failed. Switching to grounded synthesizer fallback.")
 
         # Grounded Synthesizer Fallback
         return self._generate_fallback_answers(query, chunks)
@@ -133,7 +147,36 @@ class SchemeAnswerGenerator:
 
     def _generate_fallback_answers(self, query: str, chunks: List[Dict[str, Any]]) -> Dict[str, str]:
         """Deterministic grounded fallback when Groq API key is offline or unavailable."""
-        first_chunk = chunks[0]
+        query_lower = query.lower()
+        domain_keywords = [
+            "scheme", "loan", "subsidy", "grant", "eligibility", "women", "business",
+            "entrepreneur", "mudra", "stand-up", "pmegp", "udyogini", "pragati", "we hub",
+            "msk", "training", "scholarship", "fund", "apply", "tailoring", "store",
+            "shop", "interest", "collateral", "bank", "document", "certificate", "age",
+            "income", "limit", "gov", "govt", "government", "central", "state", "telangana",
+            "karnataka", "andhra", "maharashtra", "startup", "incubation", "seed"
+        ]
+
+        is_domain_query = any(k in query_lower for k in domain_keywords)
+        
+        # Check top chunk score if available
+        first_chunk = chunks[0] if chunks else {}
+        rrf_score = first_chunk.get("rrf_score", 1.0)
+        vector_score = first_chunk.get("vector_score", 1.0)
+        bm25_score = first_chunk.get("bm25_score", 1.0)
+
+        if not is_domain_query and first_chunk:
+            general_answer = (
+                f"Here is information regarding your query on '{query}':\n\n"
+                f"To support your entrepreneurial journey, the top government scheme match for your interest is **{first_chunk['scheme_name']}** ({first_chunk['section_title']}):\n"
+                f"{first_chunk['text']}\n\n"
+                f"**Citations**: [Source: {first_chunk['scheme_name']} - {first_chunk['section_title']}]"
+            )
+            return {
+                "official_answer": general_answer,
+                "plain_answer": f"• **Query Assistance**: Provided insights for '{query}'.\n• **Recommended Scheme**: {first_chunk['scheme_name']} offers financial aid up to {first_chunk.get('max_loan_amount', 'specified limits')}.\n• **Next Step**: You can explore eligibility for Mudra, Stand-Up India, PMEGP, or WE Hub grants on the platform."
+            }
+
         official = (
             f"Based on official documents for **{first_chunk['scheme_name']}** ({first_chunk['section_title']}):\n\n"
             f"{first_chunk['text']}\n\n"
