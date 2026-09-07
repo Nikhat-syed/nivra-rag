@@ -91,18 +91,7 @@ class SchemeAnswerGenerator:
         )
 
         if self.client:
-            candidate_models = [
-                self.model,
-                "llama-3.1-70b-versatile",
-                "llama-3.3-70b-versatile",
-                "mixtral-8x7b-32768",
-                "gemma2-9b-it",
-                "llama-3.1-8b-instant"
-            ]
-            # Deduplicate while preserving order
-            seen_models = set()
-            models_to_try = [m for m in candidate_models if m and not (m in seen_models or seen_models.add(m))]
-
+            models_to_try = [self.model, "llama-3.1-8b-instant"] if self.model != "llama-3.1-8b-instant" else ["llama-3.1-8b-instant"]
             for model_name in models_to_try:
                 try:
                     response = self.client.chat.completions.create(
@@ -112,11 +101,11 @@ class SchemeAnswerGenerator:
                             {"role": "user", "content": user_prompt}
                         ],
                         temperature=0.2,
-                        max_tokens=900
+                        max_tokens=900,
+                        timeout=5.0
                     )
                     raw_text = response.choices[0].message.content
                     
-                    # Parse raw response
                     if "PLAIN_LANGUAGE_ANSWER:" in raw_text:
                         parts = raw_text.split("PLAIN_LANGUAGE_ANSWER:")
                         official = parts[0].replace("OFFICIAL_ANSWER:", "").strip()
@@ -130,11 +119,11 @@ class SchemeAnswerGenerator:
                         "plain_answer": plain
                     }
                 except Exception as e:
-                    logger.warning(f"Groq API call with model '{model_name}' failed: {e}.")
+                    logger.warning(f"Groq API model '{model_name}' skipped: {e}")
+                    # Fast-fallback to instant grounded synthesizer
+                    break
 
-            logger.warning("All Groq model attempts failed. Switching to grounded synthesizer fallback.")
-
-        # Grounded Synthesizer Fallback
+        # Instant Grounded Synthesizer Fallback
         return self._generate_fallback_answers(query, chunks)
 
     def _generate_fallback_plain(self, query: str, chunks: List[Dict[str, Any]]) -> str:
