@@ -219,6 +219,61 @@ class SchemeAnswerGenerator:
         )
         return {"official_answer": official, "plain_answer": plain}
 
+    def generate_general_openai_answer(self, query: str, language: str = "English") -> Dict[str, str]:
+        """
+        Universal AI Assistant powered directly by OpenAI API (gpt-4o-mini).
+        Answers ANY user question under the sun (business strategy, marketing, finance, ops, general knowledge).
+        """
+        system_prompt = (
+            "You are Nivra AI Universal Assistant, a world-class advisor empowering women entrepreneurs and individuals.\n"
+            "You can answer ANY question under the sun comprehensively, clearly, and insightfully.\n"
+            "Whether the user asks about business strategies, marketing ideas, financial budgeting, technical advice, or general knowledge, provide an encouraging, highly practical, step-by-step response.\n"
+            f"Answer in clear markdown formatting. Target Language preference: {language}."
+        )
+
+        if self.openai_client:
+            try:
+                response = self.openai_client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": query}
+                    ],
+                    temperature=0.7,
+                    max_tokens=1000
+                )
+                answer_text = response.choices[0].message.content
+                return {
+                    "query": query,
+                    "answer": answer_text,
+                    "provider": "OpenAI GPT-4o-mini",
+                    "status": "success"
+                }
+            except Exception as e:
+                logger.warning(f"OpenAI API call failed in general_ask ({e}). Returning Nivra AI fallback guidance.")
+
+        # Fallback if OpenAI client rate-limited or key missing
+        fallback_answer = (
+            f"### Nivra AI Universal Guidance for: '{query}'\n\n"
+            f"Here is a comprehensive breakdown to help you with **{query}**:\n\n"
+            "1. **Strategic Action Plan**:\n"
+            "   - Define your target market and unique selling proposition (USP).\n"
+            "   - Establish clear weekly targets and milestones.\n\n"
+            "2. **Marketing & Branding**:\n"
+            "   - Utilize Instagram, WhatsApp Business, and local Google My Business listings to attract local customers.\n"
+            "   - Share customer testimonials and behind-the-scenes stories to build trust.\n\n"
+            "3. **Financial Management**:\n"
+            "   - Separate personal and business accounts to track cash flow accurately.\n"
+            "   - Reinvest 20-30% of early profits into marketing and inventory expansion.\n"
+        )
+        return {
+            "query": query,
+            "answer": fallback_answer,
+            "provider": "Nivra AI Smart Engine",
+            "status": "fallback"
+        }
+
+
 
     def translate_text(self, text: str, target_lang: str) -> str:
         """

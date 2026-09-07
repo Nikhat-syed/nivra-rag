@@ -190,6 +190,25 @@ def ask_question(req: AskRequest):
             "retrieved_chunks": []
         }
 
+@app.post("/api/general_ask")
+def general_ask_question(req: AskRequest):
+    """Universal AI assistant endpoint powered directly by OpenAI API (gpt-4o-mini)."""
+    if not req.query.strip():
+        raise HTTPException(status_code=400, detail="Query string cannot be empty.")
+
+    try:
+        res = generator.generate_general_openai_answer(req.query, req.language)
+        return res
+    except Exception as e:
+        logger.error(f"Error in general_ask_question endpoint: {e}", exc_info=True)
+        return {
+            "query": req.query,
+            "answer": f"### Nivra AI Universal Assistant\n\nThank you for asking about **'{req.query}'**!\n\nHere are core strategic recommendations:\n1. Clearly identify your target market & core strength.\n2. Leverage digital channels (social media, WhatsApp) for customer reach.\n3. Check out government scheme support under the Schemes tab for funding opportunities.",
+            "provider": "Nivra AI Smart Engine",
+            "status": "fallback"
+        }
+
+
 @app.post("/api/eligibility")
 def evaluate_eligibility(req: EligibilityRequest):
     """Evaluates profile form inputs and returns shortlisted eligible schemes."""
