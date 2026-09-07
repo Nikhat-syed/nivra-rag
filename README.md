@@ -1,7 +1,43 @@
 # Nivra (निव्रा / నివ్రా)
 
-> **A Production-Grade Multilingual RAG Platform for Indian Women Entrepreneurs**
+> **A Production-Grade Multilingual RAG Platform for Indian Women Entrepreneurs**  
 > *Helping women entrepreneurs find, understand, and apply for government schemes in plain English, Telugu, and Hindi.*
+
+[![Live Frontend Demo](https://img.shields.io/badge/Netlify-Live%20Demo-00C7B7?style=for-the-badge&logo=netlify)](https://nivra-rag.netlify.app/)
+[![Backend API](https://img.shields.io/badge/Railway-Production%20API-0B0D0E?style=for-the-badge&logo=railway)](https://nivra-backend-production.up.railway.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+
+---
+
+## 📸 Interface Screenshots & Demo Showcase
+
+### 1. Dashboard Home — Stitched Luxury UI & Hero Search
+*Soft blush cream palette (`#FAF3F0`), dashed stitched cards, and hybrid search bar.*
+![Dashboard Home](docs/screenshots/dashboard_home.png)
+
+---
+
+### 2. Scheme Cards — Stitched Seams & Metadata Tags
+*Dashed inner seam accents, category badges (Loan, Grant, Support), and direct document checklist launcher.*
+![Scheme Cards](docs/screenshots/scheme_cards.png)
+
+---
+
+### 3. Ask Nivra — Universal AI Assistant & Grounded RAG Bot
+*Dual-bot engine switcher (`🏛️ Scheme RAG Bot` & `✨ Nivra Universal OpenAI Bot`) with plain-language answer generation.*
+![Ask Nivra Chat](docs/screenshots/ask_nivra_chat.png)
+
+---
+
+### 4. Form-Driven Eligibility Checker
+*Match scoring system evaluating user profile inputs (age, business stage, category, location) against scheme criteria with staggered reveals.*
+![Eligibility Checker](docs/screenshots/eligibility_checker.png)
+
+---
+
+### 5. Document Checklist & Readiness Bar
+*Categorized document readiness checklist (Identity, Business, Financial, Category Proofs) with animated completion progress bar.*
+![Document Checklist Modal](docs/screenshots/document_checklist.png)
 
 ---
 
@@ -9,13 +45,13 @@
 
 Nivra bridges the digital literacy gap for Indian women micro-entrepreneurs by converting complex, jargon-heavy government scheme PDFs (loans, subsidies, scholarships, incubation grants) into accessible plain-language summaries and interactive tools.
 
-- **🎨 Modern React (Vite) SaaS Frontend**: Soft lavender aesthetic, glassmorphism cards, day/night theme toggle, high contrast readability, and responsive mobile layout.
-- **⚡ FastAPI Python Backend**: Fast REST API exposing Hybrid RRF search, grounded Q&A, eligibility evaluation, and document checklists.
+- **🎨 Stitched Luxury UI Frontend**: Soft blush cream aesthetic (`#FAF3F0`), dashed stitched seam cards, day/night theme toggle, top-left animated purple bot button, and smooth page transitions.
+- **⚡ FastAPI Python Backend**: Fast REST API exposing Hybrid RRF search, grounded Q&A, eligibility evaluation, and document checklists deployed on Railway.
 - **🗄️ Supabase Database Integration**: PostgreSQL persistent storage for user bookmarked schemes and Q&A interaction logs.
 - **🔍 Hybrid Reciprocal Rank Fusion (RRF)**: Combines dense vector similarity (384-dim Qdrant) with sparse keyword search (BM25Okapi) for maximum precision (+54.5% Context Precision improvement over vector-only search).
 - **🌐 Multilingual Plain Language**: Grounded LLM generation with automatic translation into **Telugu (తెలుగు)** and **Hindi (हिन्दी)**.
 - **📋 Form-Driven Eligibility Checker**: Match scoring system evaluating user profile inputs (age, business stage, category, state) against scheme criteria.
-- **📄 Interactive Document Checklists**: One-click categorized document lists (Identity, Business, Financial, Category Proofs) with progress checkboxes.
+- **📄 Interactive Document Checklists**: One-click categorized document lists (Identity, Business, Financial, Category Proofs) with progress checkboxes and 0-100% readiness indicator.
 
 ---
 
@@ -24,13 +60,13 @@ Nivra bridges the digital literacy gap for Indian women micro-entrepreneurs by c
 ```
                                ┌───────────────────────────┐
                                │ React + Vite Frontend UI  │
-                               │   (Netlify / Port 5180)   │
+                               │  (Netlify / Live App)     │
                                └─────────────┬─────────────┘
                                              │ HTTP REST API (JSON)
                                              ▼
                                ┌───────────────────────────┐
                                │  FastAPI Python Backend   │
-                               │   (Render / Port 8080)    │
+                               │   (Railway Production)    │
                                └─────────────┬─────────────┘
                                              │
       ┌──────────────────────────────────────┼──────────────────────────────────────┐
@@ -72,7 +108,7 @@ cd nivra-rag
 py -3 -m pip install -r requirements.txt
 ```
 
-Set up your `.env` file (for Supabase & Groq LLM):
+Set up your `.env` file (for Supabase & Groq/OpenAI LLM):
 ```bash
 cp .env.example .env
 ```
@@ -108,18 +144,9 @@ npx vite --port 5180
 ```
 *Frontend available at: **`http://localhost:5180`***
 
-#### Option B: Netlify + Render Cloud Deployment
-1. **Frontend (Netlify)**: Connect repository to Netlify using [`netlify.toml`](file:///c:/Users/Dell/OneDrive/Desktop/rag%20system/netlify.toml).
-   - Set site name to `nivra` ➔ **`https://nivra.netlify.app`**
-2. **Backend (Render / Koyeb)**: Connect repository to Render using [`render.yaml`](file:///c:/Users/Dell/OneDrive/Desktop/rag%20system/render.yaml) or Koyeb using [`koyeb.yaml`](file:///c:/Users/Dell/OneDrive/Desktop/rag%20system/koyeb.yaml).
-
-#### Option C: Docker Container Deployment
-```bash
-docker-compose up -d --build
-```
-*Production Nginx Frontend available at: **`http://localhost`*** (Port 80)
-
-*For complete step-by-step instructions, see [DEPLOYMENT.md](file:///c:/Users/Dell/OneDrive/Desktop/rag%20system/DEPLOYMENT.md).*
+#### Option B: Cloud Production Deployment
+1. **Frontend (Netlify)**: [`https://nivra-rag.netlify.app/`](https://nivra-rag.netlify.app/)
+2. **Backend (Railway)**: [`https://nivra-backend-production.up.railway.app`](https://nivra-backend-production.up.railway.app)
 
 ---
 
@@ -133,20 +160,20 @@ docker-compose up -d --build
 ├── frontend/
 │   ├── index.html           # React app HTML template
 │   ├── vite.config.js       # Vite build & API proxy configuration
-│   ├── Dockerfile           # Frontend Nginx container build file
-│   ├── nginx.conf           # Nginx reverse proxy & SPA router
 │   └── src/
-│       ├── index.css        # Soft lavender CSS design system (Light/Dark themes)
+│       ├── index.css        # Stitched Luxury UI CSS design system (Light/Dark themes)
 │       ├── App.jsx          # Root React app component
 │       └── components/
 │           ├── Sidebar.jsx             # Left navigation menu
 │           ├── Header.jsx              # Global header with Day/Night toggle & language selector
 │           ├── DashboardHome.jsx       # Search bar & recommended scheme cards
-│           ├── AskQuestion.jsx         # Multilingual grounded Q&A
+│           ├── AskQuestion.jsx         # Multilingual grounded Q&A with dual-bot switcher
 │           ├── EligibilityChecker.jsx  # Form profile matcher
-│           ├── DocumentChecklistModal.jsx # Required document checklist
+│           ├── DocumentChecklistModal.jsx # Required document checklist with progress bar
 │           ├── SavedSchemes.jsx        # Bookmarked schemes synced via Supabase
 │           └── MetricsView.jsx         # RAG evaluation metrics dashboard
+├── docs/
+│   └── screenshots/         # Production UI screenshots for GitHub README
 ├── src/
 │   ├── db/                  # Supabase PostgreSQL database manager
 │   ├── ingestion/           # Docling PDF extraction & section chunking
@@ -156,8 +183,6 @@ docker-compose up -d --build
 │   └── evaluation/          # RAGAS test dataset & evaluation harness
 ├── docker-compose.yml       # Full stack container orchestration
 ├── netlify.toml             # Netlify deployment configuration
-├── render.yaml              # Render cloud infrastructure configuration
-├── DEPLOYMENT.md            # Complete deployment guide
 ├── requirements.txt
 └── README.md
 ```
