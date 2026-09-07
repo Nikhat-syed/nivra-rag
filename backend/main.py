@@ -125,11 +125,15 @@ def search_schemes(req: SearchRequest):
 
 @app.post("/api/ask")
 def ask_question(req: AskRequest):
-    """Grounded RAG answer generation with citations, multilingual translation, and Supabase chat logging."""
+    """Grounded RAG answer generation with citations or Universal OpenAI assistant."""
     if not req.query.strip():
         raise HTTPException(status_code=400, detail="Query string cannot be empty.")
 
     try:
+        # Route to Universal OpenAI Assistant if requested
+        if req.mode in ["universal", "general", "openai"]:
+            return generator.generate_general_openai_answer(req.query, req.language)
+
         try:
             if req.mode == "semantic_only":
                 chunks = retriever.semantic_search(req.query, top_k=5)
@@ -138,6 +142,7 @@ def ask_question(req: AskRequest):
         except Exception as ret_err:
             logger.warning(f"Retrieval failed ({ret_err}). Using fallback search.")
             chunks = []
+
 
         answers = generator.generate_answers(req.query, chunks)
         

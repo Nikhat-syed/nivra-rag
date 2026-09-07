@@ -51,12 +51,13 @@ export default function AskQuestion({ language, plainLanguage, retrievalMode }) 
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/general_ask', {
+      const res = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           query: q,
-          language: language
+          language: language,
+          mode: 'universal'
         })
       });
       if (!res.ok) throw new Error(`Server returned status ${res.status}`);
