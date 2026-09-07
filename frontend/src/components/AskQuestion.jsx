@@ -287,7 +287,7 @@ export default function AskQuestion({ language, plainLanguage, retrievalMode }) 
 
       {/* Output Results - Scheme Bot */}
       {activeBot === 'scheme' && schemeResult && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="ai-response-card" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Plain Language Summary */}
           {plainLanguage && (
             <div style={{ background: 'var(--primary-light)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '24px' }}>
@@ -333,13 +333,13 @@ export default function AskQuestion({ language, plainLanguage, retrievalMode }) 
 
       {/* Output Results - Universal OpenAI Bot */}
       {activeBot === 'universal' && universalResult && (
-        <div style={{ background: 'var(--bg-card)', border: '1px solid #DDD6FE', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 16px rgba(124, 58, 237, 0.08)' }}>
+        <div className="ai-response-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '24px', boxShadow: 'var(--shadow-md)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', pb: '12px', borderBottom: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#6D28D9', fontWeight: '700', fontSize: '1.08rem' }}>
-              <Zap size={22} color="#7C3AED" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-dark)', fontWeight: '700', fontSize: '1.08rem' }}>
+              <Zap size={22} color="var(--primary)" />
               <span>Nivra Universal AI Response</span>
             </div>
-            <span style={{ fontSize: '0.78rem', background: '#F3E8FF', color: '#6D28D9', padding: '4px 12px', borderRadius: '20px', fontWeight: '600' }}>
+            <span style={{ fontSize: '0.78rem', background: 'var(--primary-light)', color: 'var(--primary-dark)', padding: '4px 12px', borderRadius: '20px', fontWeight: '600' }}>
               ⚡ {universalResult.provider || 'OpenAI GPT-4o-mini'}
             </span>
           </div>

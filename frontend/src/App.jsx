@@ -109,41 +109,43 @@ export default function App() {
           setActiveTab={setActiveTab}
         />
 
-        {/* Dynamic View Rendering */}
-        {activeTab === 'home' && (
-          <DashboardHome
-            onOpenChecklist={(sName) => setChecklistScheme(sName)}
-            retrievalMode={retrievalMode}
-            onSaveScheme={handleSaveScheme}
-            savedSchemes={savedSchemes}
-          />
-        )}
+        {/* Dynamic View Rendering with Smooth Transition */}
+        <div key={activeTab} className="page-transition-view">
+          {activeTab === 'home' && (
+            <DashboardHome
+              onOpenChecklist={(sName) => setChecklistScheme(sName)}
+              retrievalMode={retrievalMode}
+              onSaveScheme={handleSaveScheme}
+              savedSchemes={savedSchemes}
+            />
+          )}
 
-        {activeTab === 'ask' && (
-          <AskQuestion
-            language={language}
-            plainLanguage={plainLanguage}
-            retrievalMode={retrievalMode}
-          />
-        )}
+          {activeTab === 'ask' && (
+            <AskQuestion
+              language={language}
+              plainLanguage={plainLanguage}
+              retrievalMode={retrievalMode}
+            />
+          )}
 
-        {activeTab === 'eligibility' && (
-          <EligibilityChecker
-            onOpenChecklist={(sName) => setChecklistScheme(sName)}
-          />
-        )}
+          {activeTab === 'eligibility' && (
+            <EligibilityChecker
+              onOpenChecklist={(sName) => setChecklistScheme(sName)}
+            />
+          )}
 
-        {activeTab === 'saved' && (
-          <SavedSchemes
-            savedSchemes={savedSchemes}
-            onOpenChecklist={(sName) => setChecklistScheme(sName)}
-            onRemoveScheme={handleRemoveScheme}
-          />
-        )}
+          {activeTab === 'saved' && (
+            <SavedSchemes
+              savedSchemes={savedSchemes}
+              onOpenChecklist={(sName) => setChecklistScheme(sName)}
+              onRemoveScheme={handleRemoveScheme}
+            />
+          )}
 
-        {activeTab === 'metrics' && (
-          <MetricsView />
-        )}
+          {activeTab === 'metrics' && (
+            <MetricsView />
+          )}
+        </div>
       </main>
 
       {/* Document Checklist Modal */}

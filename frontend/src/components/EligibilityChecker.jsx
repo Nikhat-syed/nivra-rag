@@ -141,11 +141,15 @@ export default function EligibilityChecker({ onOpenChecklist }) {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {results.map((item, idx) => (
-              <div key={idx} className="scheme-card" style={{ flexDirection: 'row', gap: '20px', alignItems: 'center' }}>
+              <div
+                key={idx}
+                className="scheme-card stagger-result-card"
+                style={{ flexDirection: 'row', gap: '20px', alignItems: 'center', animationDelay: `${idx * 0.08}s` }}
+              >
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                     <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: 'var(--primary-dark)' }}>{item.scheme_name}</h3>
-                    <span className="badge badge-loan">{item.score}% MATCH</span>
+                    <span className="tag-badge tag-loan">{item.score}% MATCH</span>
                   </div>
 
                   <p style={{ color: 'var(--primary-dark)', fontWeight: '700', fontSize: '0.9rem', marginBottom: '6px' }}>
