@@ -46,7 +46,7 @@ class SchemeAnswerGenerator:
         if self.openai_api_key and not self.openai_api_key.startswith("your_"):
             try:
                 from openai import OpenAI
-                self.openai_client = OpenAI(api_key=self.openai_api_key)
+                self.openai_client = OpenAI(api_key=self.openai_api_key, max_retries=0, timeout=4.0)
                 logger.info("Initialized OpenAI LLM client.")
             except Exception as e:
                 logger.warning(f"Could not initialize OpenAI SDK: {e}")
