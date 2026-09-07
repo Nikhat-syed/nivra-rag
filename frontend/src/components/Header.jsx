@@ -1,7 +1,7 @@
 import React from 'react';
 import { Globe, AlertTriangle, Sparkles, Sun, Moon } from 'lucide-react';
 
-export default function Header({ language, setLanguage, plainLanguage, setPlainLanguage, theme, setTheme }) {
+export default function Header({ language, setLanguage, plainLanguage, setPlainLanguage, theme, setTheme, setActiveTab }) {
   const isDark = theme === 'dark';
 
   const toggleTheme = () => {
@@ -18,13 +18,27 @@ export default function Header({ language, setLanguage, plainLanguage, setPlainL
       </div>
 
       <div className="top-bar">
-        <div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--primary-dark)' }}>
-            Namaste, Entrepreneur 🌸
-          </h2>
-          <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            Find government loans, scholarships, and grants in plain language.
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap' }}>
+          {/* Animated Purple Bot Button on Top Left */}
+          <button
+            type="button"
+            onClick={() => setActiveTab && setActiveTab('ask')}
+            className="nivra-purple-bot-btn"
+            title="Click to talk to Nivra AI Universal Assistant directly"
+          >
+            <Sparkles size={18} className="bot-icon-spin" />
+            <span>Nivra AI Bot</span>
+            <span className="bot-pulse-ring"></span>
+          </button>
+
+          <div>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--primary-dark)' }}>
+              Namaste, Entrepreneur 🌸
+            </h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              Find government loans, scholarships, and grants in plain language.
+            </p>
+          </div>
         </div>
 
         <div className="controls-group">

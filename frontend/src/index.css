@@ -391,3 +391,87 @@ body {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px var(--accent-glow);
 }
+
+/* --- Animated Purple Bot Button Styles --- */
+.nivra-purple-bot-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #7C3AED 0%, #C026D3 100%);
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(124, 58, 237, 0.4);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  animation: botFloating 3s ease-in-out infinite alternate;
+}
+
+.nivra-purple-bot-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(192, 38, 211, 0.55);
+}
+
+.nivra-purple-bot-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+@keyframes botFloating {
+  0% {
+    transform: translateY(0px);
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
+  }
+  100% {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(192, 38, 211, 0.5);
+  }
+}
+
+.bot-icon-spin {
+  animation: starSparkle 3s infinite linear;
+}
+
+@keyframes starSparkle {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.bot-pulse-ring {
+  width: 8px;
+  height: 8px;
+  background-color: #34D399;
+  border-radius: 50%;
+  position: relative;
+  display: inline-block;
+  margin-left: 2px;
+}
+
+.bot-pulse-ring::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border-radius: 50%;
+  border: 2px solid #34D399;
+  animation: pulseRing 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+

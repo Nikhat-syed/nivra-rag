@@ -106,6 +106,7 @@ export default function App() {
           setPlainLanguage={setPlainLanguage}
           theme={theme}
           setTheme={setTheme}
+          setActiveTab={setActiveTab}
         />
 
         {/* Dynamic View Rendering */}
