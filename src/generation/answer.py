@@ -27,23 +27,29 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger(__name__)
 
 class SchemeAnswerGenerator:
-    def __init__(self, groq_api_key: str = None, model: str = "llama-3.3-70b-versatile"):
-        if groq_api_key is None:
-            groq_api_key = os.getenv("GROQ_API_KEY", "").strip()
+    def __init__(self, groq_api_key: str = None, openai_api_key: str = None, gemini_api_key: str = None):
+        self.groq_api_key = groq_api_key or os.getenv("GROQ_API_KEY", "").strip()
+        self.openai_api_key = openai_api_key or os.getenv("OPENAI_API_KEY", "").strip()
+        self.gemini_api_key = gemini_api_key or os.getenv("GEMINI_API_KEY", "").strip()
 
-        self.groq_api_key = groq_api_key
-        self.model = model
-        self.client = None
+        self.groq_client = None
+        self.openai_client = None
 
         if self.groq_api_key and not self.groq_api_key.startswith("your_"):
             try:
                 from groq import Groq
-                self.client = Groq(api_key=self.groq_api_key)
-                logger.info(f"Initialized Groq LLM client with model: {self.model}")
+                self.groq_client = Groq(api_key=self.groq_api_key)
+                logger.info("Initialized Groq LLM client.")
             except Exception as e:
-                logger.warning(f"Could not initialize Groq SDK: {e}. Will use grounded fallback synthesizer.")
-        else:
-            logger.info("No active Groq API Key found. Using deterministic grounded fallback synthesizer.")
+                logger.warning(f"Could not initialize Groq SDK: {e}")
+
+        if self.openai_api_key and not self.openai_api_key.startswith("your_"):
+            try:
+                from openai import OpenAI
+                self.openai_client = OpenAI(api_key=self.openai_api_key)
+                logger.info("Initialized OpenAI LLM client.")
+            except Exception as e:
+                logger.warning(f"Could not initialize OpenAI SDK: {e}")
 
     def format_context_prompt(self, chunks: List[Dict[str, Any]]) -> str:
         """Formats retrieved chunks into structured context blocks for prompt injection."""
@@ -90,11 +96,36 @@ class SchemeAnswerGenerator:
             "PLAIN_LANGUAGE_ANSWER:\n<Simplified 3-bullet point summary>\n"
         )
 
-        if self.client:
-            models_to_try = [self.model, "llama-3.1-8b-instant"] if self.model != "llama-3.1-8b-instant" else ["llama-3.1-8b-instant"]
-            for model_name in models_to_try:
+        # Try OpenAI API first if key is present
+        if self.openai_client:
+            try:
+                response = self.openai_client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    temperature=0.2,
+                    max_tokens=900
+                )
+                raw_text = response.choices[0].message.content
+                if "PLAIN_LANGUAGE_ANSWER:" in raw_text:
+                    parts = raw_text.split("PLAIN_LANGUAGE_ANSWER:")
+                    official = parts[0].replace("OFFICIAL_ANSWER:", "").strip()
+                    plain = parts[1].strip()
+                else:
+                    official = raw_text.strip()
+                    plain = self._generate_fallback_plain(query, chunks)
+
+                return {"official_answer": official, "plain_answer": plain}
+            except Exception as e:
+                logger.warning(f"OpenAI API call failed: {e}")
+
+        # Try Groq API next if available
+        if self.groq_client:
+            for model_name in ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]:
                 try:
-                    response = self.client.chat.completions.create(
+                    response = self.groq_client.chat.completions.create(
                         model=model_name,
                         messages=[
                             {"role": "system", "content": system_prompt},
@@ -105,7 +136,6 @@ class SchemeAnswerGenerator:
                         timeout=5.0
                     )
                     raw_text = response.choices[0].message.content
-                    
                     if "PLAIN_LANGUAGE_ANSWER:" in raw_text:
                         parts = raw_text.split("PLAIN_LANGUAGE_ANSWER:")
                         official = parts[0].replace("OFFICIAL_ANSWER:", "").strip()
@@ -114,13 +144,9 @@ class SchemeAnswerGenerator:
                         official = raw_text.strip()
                         plain = self._generate_fallback_plain(query, chunks)
 
-                    return {
-                        "official_answer": official,
-                        "plain_answer": plain
-                    }
+                    return {"official_answer": official, "plain_answer": plain}
                 except Exception as e:
                     logger.warning(f"Groq API model '{model_name}' skipped: {e}")
-                    # Fast-fallback to instant grounded synthesizer
                     break
 
         # Instant Grounded Synthesizer Fallback
