@@ -117,7 +117,7 @@ class SchemeAnswerGenerator:
 
         # Try Groq API next if available
         if self.groq_client:
-            for model_name in ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]:
+            for model_name in ["groq/compound-mini", "openai/gpt-oss-120b", "qwen/qwen3.8-27b", "groq/compound"]:
                 try:
                     response = self.groq_client.chat.completions.create(
                         model=model_name,
@@ -127,7 +127,7 @@ class SchemeAnswerGenerator:
                         ],
                         temperature=0.3,
                         max_tokens=900,
-                        timeout=5.0
+                        timeout=8.0
                     )
                     raw_text = response.choices[0].message.content
                     if "PLAIN_LANGUAGE_ANSWER:" in raw_text:
@@ -141,7 +141,7 @@ class SchemeAnswerGenerator:
                     return {"official_answer": official, "plain_answer": plain}
                 except Exception as e:
                     logger.warning(f"Groq API model '{model_name}' skipped: {e}")
-                    break
+                    continue
 
         # Instant Grounded & Structured Synthesizer Fallback
         return self._generate_fallback_answers(query, chunks)
@@ -221,8 +221,8 @@ class SchemeAnswerGenerator:
 
     def generate_general_openai_answer(self, query: str, language: str = "English") -> Dict[str, str]:
         """
-        Universal AI Assistant powered directly by OpenAI API (gpt-4o-mini).
-        Answers ANY user question under the sun (business strategy, marketing, finance, ops, general knowledge).
+        Universal AI Assistant powered directly by OpenAI API (gpt-4o-mini) and active LLM engines.
+        Answers ANY user question under the sun with unique, dynamic, custom responses.
         """
         system_prompt = (
             "You are Nivra AI Universal Assistant, a world-class advisor empowering women entrepreneurs and individuals.\n"
@@ -250,7 +250,31 @@ class SchemeAnswerGenerator:
                     "status": "success"
                 }
             except Exception as e:
-                logger.warning(f"OpenAI API call failed in general_ask ({e}). Returning Nivra AI fallback guidance.")
+                logger.warning(f"OpenAI API call failed in general_ask ({e}). Attempting Groq live models...")
+
+        if self.groq_client:
+            for model_name in ["groq/compound-mini", "openai/gpt-oss-120b", "qwen/qwen3.8-27b", "groq/compound"]:
+                try:
+                    response = self.groq_client.chat.completions.create(
+                        model=model_name,
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": query}
+                        ],
+                        temperature=0.7,
+                        max_tokens=1000,
+                        timeout=8.0
+                    )
+                    answer_text = response.choices[0].message.content
+                    return {
+                        "query": query,
+                        "answer": answer_text,
+                        "provider": f"Nivra AI ({model_name})",
+                        "status": "success"
+                    }
+                except Exception as e:
+                    logger.warning(f"Groq general_ask model '{model_name}' skipped: {e}")
+                    continue
 
         # Fallback if OpenAI client rate-limited or key missing
         fallback_answer = (
@@ -272,6 +296,7 @@ class SchemeAnswerGenerator:
             "provider": "Nivra AI Smart Engine",
             "status": "fallback"
         }
+
 
 
 
