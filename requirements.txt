@@ -10,6 +10,7 @@ rank-bm25
 ragas
 streamlit
 groq
+openai
 python-dotenv
 deep-translator
 pandas
