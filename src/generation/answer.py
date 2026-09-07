@@ -34,14 +34,22 @@ _K2 = "WIzRllEZ2MwbHlvaHU4aFBRd3BGYmo3QUoxSU0="
 class SchemeAnswerGenerator:
     def __init__(self, groq_api_key: str = None, openai_api_key: str = None, gemini_api_key: str = None):
         fallback_groq = base64.b64decode((_K1 + _K2).encode('utf-8')).decode('utf-8')
-        self.groq_api_key = groq_api_key or os.getenv("GROQ_API_KEY", "").strip() or fallback_groq
-        self.openai_api_key = openai_api_key or os.getenv("OPENAI_API_KEY", "").strip()
-        self.gemini_api_key = gemini_api_key or os.getenv("GEMINI_API_KEY", "").strip()
+        
+        env_groq = (os.getenv("GROQ_API_KEY", "") or "").strip()
+        if groq_api_key:
+            self.groq_api_key = groq_api_key
+        elif env_groq and not env_groq.startswith("your_") and len(env_groq) > 15:
+            self.groq_api_key = env_groq
+        else:
+            self.groq_api_key = fallback_groq
+
+        self.openai_api_key = openai_api_key or (os.getenv("OPENAI_API_KEY", "") or "").strip()
+        self.gemini_api_key = gemini_api_key or (os.getenv("GEMINI_API_KEY", "") or "").strip()
 
         self.groq_client = None
         self.openai_client = None
 
-        if self.groq_api_key and not self.groq_api_key.startswith("your_"):
+        if self.groq_api_key:
             try:
                 from groq import Groq
                 self.groq_client = Groq(api_key=self.groq_api_key)
